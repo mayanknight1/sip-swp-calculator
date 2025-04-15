@@ -1,0 +1,44 @@
+{
+  "name": "sip-swp-calculator",
+  "version": "1.0.0",
+  "description": "A web application for calculating SIP and SWP investments.",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "keywords": [
+    "SIP",
+    "SWP",
+    "calculator",
+    "investment",
+    "finance"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "tailwindcss": "^2.2.19",
+    "postcss": "^8.4.5",
+    "autoprefixer": "^10.4.2"
+  },
+  "devDependencies": {
+    "postcss-cli": "^8.3.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

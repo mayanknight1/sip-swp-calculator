@@ -1,0 +1,18 @@
+# Node dependencies
+node_modules/
+dist/
+build/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Vercel/Netlify build
+.vercel/
+.netlify/
+
+# Environment
+.env

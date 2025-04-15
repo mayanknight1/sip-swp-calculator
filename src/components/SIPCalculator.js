@@ -21,37 +21,37 @@ const SIPCalculator = () => {
 
     return (
         <div>
-            <div className="mb-4">
-                <label className="block mb-2">Monthly Investment (₹):</label>
+            <div className="form-group">
+                <label className="form-label">Monthly Investment (₹):</label>
                 <input
                     type="number"
                     value={monthlyInvestment}
                     onChange={(e) => setMonthlyInvestment(e.target.value)}
-                    className="border p-2 w-full"
+                    className="form-input"
                 />
             </div>
-            <div className="mb-4">
-                <label className="block mb-2">Expected Annual Return Rate (%):</label>
+            <div className="form-group">
+                <label className="form-label">Expected Annual Return Rate (%):</label>
                 <input
                     type="number"
                     value={annualRate}
                     onChange={(e) => setAnnualRate(e.target.value)}
-                    className="border p-2 w-full"
+                    className="form-input"
                 />
             </div>
-            <div className="mb-4">
-                <label className="block mb-2">Time Period (Years):</label>
+            <div className="form-group">
+                <label className="form-label">Time Period (Years):</label>
                 <input
                     type="number"
                     value={years}
                     onChange={(e) => setYears(e.target.value)}
-                    className="border p-2 w-full"
+                    className="form-input"
                 />
             </div>
-            <button onClick={calculateSIP} className="bg-green-500 text-white px-4 py-2 rounded">
+            <button onClick={calculateSIP} className="button">
                 Calculate
             </button>
-            <div className="mt-4">
+            <div className="results">
                 <p>Invested Amount: ₹{result.invested.toFixed(2)}</p>
                 <p>Estimated Returns: ₹{result.returns.toFixed(2)}</p>
                 <p>Total Value: ₹{result.total.toFixed(2)}</p>

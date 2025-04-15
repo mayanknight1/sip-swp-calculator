@@ -1,68 +1,61 @@
 import React, { useState } from 'react';
 
 const SIPCalculator = () => {
-    const [investmentAmount, setInvestmentAmount] = useState('');
-    const [expectedReturnRate, setExpectedReturnRate] = useState('');
-    const [timePeriod, setTimePeriod] = useState('');
-    const [totalAmount, setTotalAmount] = useState(null);
+    const [monthlyInvestment, setMonthlyInvestment] = useState(0);
+    const [annualRate, setAnnualRate] = useState(0);
+    const [years, setYears] = useState(0);
+    const [result, setResult] = useState({ invested: 0, returns: 0, total: 0 });
 
     const calculateSIP = () => {
-        const p = parseFloat(investmentAmount);
-        const r = parseFloat(expectedReturnRate) / 100 / 12;
-        const n = parseFloat(timePeriod) * 12;
+        const P = parseFloat(monthlyInvestment);
+        const r = parseFloat(annualRate) / 100 / 12; // Monthly interest rate
+        const n = 12; // Compounding periods per year
+        const t = parseFloat(years);
 
-        if (!isNaN(p) && !isNaN(r) && !isNaN(n) && r !== 0) {
-            const futureValue = p * (((1 + r) ** n - 1) / r) * (1 + r);
-            setTotalAmount(futureValue.toFixed(2));
-        } else {
-            setTotalAmount(null);
-        }
+        const invested = P * n * t;
+        const futureValue = P * ((Math.pow(1 + r, n * t) - 1) * (1 + r)) / r;
+        const returns = futureValue - invested;
+
+        setResult({ invested, returns, total: futureValue });
     };
 
     return (
-        <div className="p-4 bg-white rounded shadow-md">
-            <h2 className="text-xl font-bold mb-4">SIP Calculator</h2>
+        <div>
             <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Investment Amount</label>
+                <label className="block mb-2">Monthly Investment (₹):</label>
                 <input
                     type="number"
-                    value={investmentAmount}
-                    onChange={(e) => setInvestmentAmount(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                    placeholder="Enter amount"
+                    value={monthlyInvestment}
+                    onChange={(e) => setMonthlyInvestment(e.target.value)}
+                    className="border p-2 w-full"
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Expected Return Rate (%)</label>
+                <label className="block mb-2">Expected Annual Return Rate (%):</label>
                 <input
                     type="number"
-                    value={expectedReturnRate}
-                    onChange={(e) => setExpectedReturnRate(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                    placeholder="Enter rate"
+                    value={annualRate}
+                    onChange={(e) => setAnnualRate(e.target.value)}
+                    className="border p-2 w-full"
                 />
             </div>
             <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Time Period (Years)</label>
+                <label className="block mb-2">Time Period (Years):</label>
                 <input
                     type="number"
-                    value={timePeriod}
-                    onChange={(e) => setTimePeriod(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                    placeholder="Enter years"
+                    value={years}
+                    onChange={(e) => setYears(e.target.value)}
+                    className="border p-2 w-full"
                 />
             </div>
-            <button
-                onClick={calculateSIP}
-                className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
-            >
+            <button onClick={calculateSIP} className="bg-green-500 text-white px-4 py-2 rounded">
                 Calculate
             </button>
-            {totalAmount !== null && (
-                <div className="mt-4 text-lg font-semibold">
-                    Total Amount: ₹{totalAmount}
-                </div>
-            )}
+            <div className="mt-4">
+                <p>Invested Amount: ₹{result.invested.toFixed(2)}</p>
+                <p>Estimated Returns: ₹{result.returns.toFixed(2)}</p>
+                <p>Total Value: ₹{result.total.toFixed(2)}</p>
+            </div>
         </div>
     );
 };

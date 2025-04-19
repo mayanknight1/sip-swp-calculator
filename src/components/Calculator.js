@@ -86,10 +86,13 @@ const Calculator = () => {
     };
   };
 
+  // Update the getChartData function with contrasting colors
   const getChartData = () => {
-    const chartColors = [
-      '#F94144', '#F3722C', '#F9C74F', '#90BE6D', '#43AA8B', '#577590', '#277DA1'
-    ];
+    const chartColors = {
+      sip: ['#FF6B6B', '#4ECDC4'],     // Red & Teal
+      swp: ['#FFE66D', '#6C5CE7'],     // Yellow & Purple
+      lumpsum: ['#A8E6CF', '#FF8B94']  // Mint & Coral
+    };
 
     if (isLumpsum) {
       const { invested, returns } = calculateLumpsumReturns();
@@ -97,8 +100,9 @@ const Calculator = () => {
         labels: ['Invested Amount', 'Est. Returns'],
         datasets: [{
           data: [invested, returns],
-          backgroundColor: [chartColors[0], chartColors[1]],
-          borderWidth: 0
+          backgroundColor: chartColors.lumpsum,
+          borderWidth: 0,
+          hoverOffset: 4
         }]
       };
     }
@@ -108,8 +112,9 @@ const Calculator = () => {
         labels: ['Invested Amount', 'Est. Returns'],
         datasets: [{
           data: [invested, returns],
-          backgroundColor: [chartColors[2], chartColors[3]],
-          borderWidth: 0
+          backgroundColor: chartColors.sip,
+          borderWidth: 0,
+          hoverOffset: 4
         }]
       };
     } else {
@@ -118,8 +123,9 @@ const Calculator = () => {
         labels: ['Withdrawn Amount', 'Remaining Amount'],
         datasets: [{
           data: [withdrawn, remaining],
-          backgroundColor: [chartColors[4], chartColors[5]],
-          borderWidth: 0
+          backgroundColor: chartColors.swp,
+          borderWidth: 0,
+          hoverOffset: 4
         }]
       };
     }
@@ -136,13 +142,13 @@ const Calculator = () => {
         <div className={`calculator-container ${isDarkMode ? 'dark-mode' : ''}`}>
           <div className="toggle-container">
             <button
-              className={`toggle-button ${isSIP ? 'active' : ''} ${isDarkMode ? 'dark-mode' : ''}`}
+              className={`toggle-button ${isSIP && !isLumpsum ? 'active' : ''} ${isDarkMode ? 'dark-mode' : ''}`}
               onClick={() => { setIsSIP(true); setIsLumpsum(false); }}
             >
               SIP
             </button>
             <button
-              className={`toggle-button ${!isSIP ? 'active' : ''} ${isDarkMode ? 'dark-mode' : ''}`}
+              className={`toggle-button ${!isSIP && !isLumpsum ? 'active' : ''} ${isDarkMode ? 'dark-mode' : ''}`}
               onClick={() => { setIsSIP(false); setIsLumpsum(false); }}
             >
               SWP
@@ -330,7 +336,29 @@ const Calculator = () => {
 
         {/* Right Side: Chart */}
         <div className={`chart-container ${isDarkMode ? 'dark-mode' : ''}`}>
-          <Doughnut data={getChartData()} options={{ responsive: true, maintainAspectRatio: false }} />
+          <Doughnut 
+            data={getChartData()} 
+            options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              animation: {
+                duration: 750,
+                easing: 'easeInOutQuart'
+              },
+              hover: {
+                animationDuration: 200
+              },
+              plugins: {
+                legend: {
+                  labels: {
+                    font: {
+                      size: window.innerWidth <= 768 ? 12 : 14
+                    }
+                  }
+                }
+              }
+            }} 
+          />
           <div className="results-container">
             {isLumpsum ? (
               <>

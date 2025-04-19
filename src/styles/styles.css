@@ -55,11 +55,13 @@ body.dark-mode {
   padding: var(--container-padding);
   box-sizing: border-box;
   width: 100%;
+  position: relative;
+  overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
   .outer-container {
-    padding-top: calc(var(--container-padding) + 48px);
+    padding-top: var(--container-padding);
   }
 }
 
@@ -73,7 +75,6 @@ body.dark-mode {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
 }
 
 @media (max-width: 768px) {
@@ -478,23 +479,42 @@ body.dark-mode {
 
 /* Theme toggle wrapper positioning */
 .theme-toggle-wrapper {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
+  position: sticky;
+  top: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  z-index: 1000;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem;
   background: var(--light-container);
-  padding: 0.5rem;
-  border-radius: var(--border-radius);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+  border-radius: var(--border-radius);
 }
 
 .theme-toggle-wrapper.dark-mode {
   background: var(--dark-container);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .theme-toggle-wrapper {
+    position: sticky;
+    top: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 0;
+    margin: -1rem -1rem 1rem -1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Remove the extra padding we added before */
+  .outer-container {
+    padding-top: var(--container-padding);
+  }
 }
 
 /* Mobile-specific optimizations */
@@ -511,11 +531,6 @@ body.dark-mode {
     right: 0;
     border-radius: 0 0 0 var(--border-radius);
     padding: 0.5rem 0.75rem;
-  }
-
-  /* Add padding to prevent overlap with fixed theme toggle */
-  .outer-container {
-    padding-top: calc(var(--container-padding) + 3rem);
   }
 }
 

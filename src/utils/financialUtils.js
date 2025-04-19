@@ -16,7 +16,7 @@ export const calculateXIRR = (cashflows) => {
     rate = rate - npv / derivativeNPV;
   }
 
-  return rate * 100; // Convert to percentage
+  return rate * 100;
 };
 
 export const generateCashflows = (type, values) => {
@@ -69,6 +69,9 @@ export const generateCashflows = (type, values) => {
           });
         }
       }
+      break;
+
+    default:
       break;
   }
   return cashflows;

@@ -10,7 +10,7 @@ import Slider from './Slider';
 import { useTheme } from '../ThemeContext';
 import ToggleSlider from './ToggleSlider'; // Import the ToggleSlider component
 // import Tooltip from './Tooltip'; // Removed duplicate import
-import { calculateXIRR } from '../utils/financialUtils'; // Create this utility
+import { calculateXIRR, generateCashflows } from '../utils/financialUtils'; // Create this utility
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend);

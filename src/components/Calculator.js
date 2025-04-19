@@ -21,12 +21,14 @@ const formatIndianCurrency = (value) => {
 
 const Calculator = () => {
   const [isSIP, setIsSIP] = useState(true);
+  const [isLumpsum, setIsLumpsum] = useState(false); // New state for Lumpsum
   const [values, setValues] = useState({
     monthlyInvestment: 25000,
     totalInvestment: 5000000,
     returnRate: 12,
     timePeriod: 10,
-    withdrawalAmount: 10000
+    withdrawalAmount: 10000,
+    lumpsumAmount: 1000000, // Default Lumpsum amount
   });
 
   const handleChange = (key, value) => {
@@ -46,6 +48,17 @@ const Calculator = () => {
     const returns = futureValue - invested;
 
     return { invested, returns, total: futureValue };
+  };
+
+  const calculateLumpsumReturns = () => {
+    const principal = values.lumpsumAmount;
+    const rate = values.returnRate / 100;
+    const time = values.timePeriod;
+
+    const futureValue = principal * Math.pow(1 + rate, time);
+    const returns = futureValue - principal;
+
+    return { invested: principal, returns, total: futureValue };
   };
 
   const calculateSWPReturns = () => {
@@ -70,6 +83,17 @@ const Calculator = () => {
   };
 
   const getChartData = () => {
+    if (isLumpsum) {
+      const { invested, returns } = calculateLumpsumReturns();
+      return {
+        labels: ['Invested Amount', 'Est. Returns'],
+        datasets: [{
+          data: [invested, returns],
+          backgroundColor: ['rgba(203, 213, 225, 1)', 'rgba(0, 189, 126, 1)'],
+          borderWidth: 0
+        }]
+      };
+    }
     if (isSIP) {
       const { invested, returns } = calculateSIPReturns();
       return {
@@ -93,7 +117,7 @@ const Calculator = () => {
     }
   };
 
-  const results = isSIP ? calculateSIPReturns() : calculateSWPReturns();
+  const results = isLumpsum ? calculateLumpsumReturns() : (isSIP ? calculateSIPReturns() : calculateSWPReturns());
 
   return (
     <div className="outer-container">
@@ -104,19 +128,73 @@ const Calculator = () => {
           <div className="toggle-container">
             <button
               className={`toggle-button ${isSIP ? 'active' : ''}`}
-              onClick={() => setIsSIP(true)}
+              onClick={() => { setIsSIP(true); setIsLumpsum(false); }}
             >
               SIP
             </button>
             <button
-              className={`toggle-button ${isSIP ? 'active' : ''}`}
-              onClick={() => setIsSIP(false)}
+              className={`toggle-button ${!isSIP ? 'active' : ''}`}
+              onClick={() => { setIsSIP(false); setIsLumpsum(false); }}
             >
               SWP
             </button>
+            <button
+              className={`toggle-button ${isLumpsum ? 'active' : ''}`}
+              onClick={() => { setIsLumpsum(true); setIsSIP(false); }}
+            >
+              Lumpsum
+            </button>
           </div>
 
-          {isSIP ? (
+          {isLumpsum ? (
+            <div>
+              <div className="input-slider-group">
+                <label>Lumpsum Amount</label>
+                <input
+                  type="number"
+                  value={values.lumpsumAmount}
+                  onChange={(e) => handleChange('lumpsumAmount', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.lumpsumAmount}
+                  onChange={(v) => handleChange('lumpsumAmount', v)}
+                  min={10000}
+                  max={10000000}
+                  step={1000}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Expected Return Rate (p.a.)</label>
+                <input
+                  type="number"
+                  value={values.returnRate}
+                  onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.returnRate}
+                  onChange={(v) => handleChange('returnRate', v)}
+                  min={1}
+                  max={50}
+                  step={0.1}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Time Period (Years)</label>
+                <input
+                  type="number"
+                  value={values.timePeriod}
+                  onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.timePeriod}
+                  onChange={(v) => handleChange('timePeriod', v)}
+                  min={1}
+                  max={40}
+                  step={1}
+                />
+              </div>
+            </div>
+          ) : isSIP ? (
             <div>
               <div className="input-slider-group">
                 <label>Monthly Investment</label>
@@ -235,7 +313,22 @@ const Calculator = () => {
         <div className="chart-container">
           <Doughnut data={getChartData()} options={{ responsive: true, maintainAspectRatio: false }} />
           <div className="results-container">
-            {isSIP ? (
+            {isLumpsum ? (
+              <>
+                <div className="result-item">
+                  <span className="result-label">Invested Amount:</span>
+                  <span className="result-value">{formatIndianCurrency(results.invested)}</span>
+                </div>
+                <div className="result-item">
+                  <span className="result-label">Est. Returns:</span>
+                  <span className="result-value">{formatIndianCurrency(results.returns)}</span>
+                </div>
+                <div className="result-item">
+                  <span className="result-label">Total Value:</span>
+                  <span className="result-value">{formatIndianCurrency(results.total)}</span>
+                </div>
+              </>
+            ) : isSIP ? (
               <>
                 <div className="result-item">
                   <span className="result-label">Invested Amount:</span>

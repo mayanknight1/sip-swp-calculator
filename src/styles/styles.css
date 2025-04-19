@@ -74,6 +74,8 @@ body {
 /* Toggle container styling */
 .toggle-container {
   display: flex;
+  justify-content: center;
+  margin-bottom: 2rem; /* Increased margin for better spacing */
   background: #f0f4ff;
   padding: 0.3rem;
   border-radius: 12px;

@@ -7,6 +7,7 @@ import {
   Legend
 } from 'chart.js';
 import Slider from './Slider';
+import logo from '../logo.png'; // Import the logo
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -97,6 +98,10 @@ const Calculator = () => {
 
   return (
     <div className="outer-container">
+      <div className="logo-container">
+        <img src={logo} alt="Calculator Logo" className="logo" />
+      </div>
+      <h1 className="main-heading">SIP & SWP Calculator</h1>
       <div className="inner-container">
         {/* Left Side: Calculator */}
         <div className="calculator-container">

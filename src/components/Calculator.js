@@ -7,6 +7,7 @@ import {
   Legend
 } from 'chart.js';
 import Slider from './Slider';
+import { useTheme } from '../ThemeContext';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -21,15 +22,17 @@ const formatIndianCurrency = (value) => {
 
 const Calculator = () => {
   const [isSIP, setIsSIP] = useState(true);
-  const [isLumpsum, setIsLumpsum] = useState(false); // New state for Lumpsum
+  const [isLumpsum, setIsLumpsum] = useState(false);
   const [values, setValues] = useState({
     monthlyInvestment: 25000,
     totalInvestment: 5000000,
     returnRate: 12,
     timePeriod: 10,
     withdrawalAmount: 10000,
-    lumpsumAmount: 1000000, // Default Lumpsum amount
+    lumpsumAmount: 1000000,
   });
+
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleChange = (key, value) => {
     setValues((prevValues) => ({
@@ -83,13 +86,17 @@ const Calculator = () => {
   };
 
   const getChartData = () => {
+    const chartColors = [
+      '#F94144', '#F3722C', '#F9C74F', '#90BE6D', '#43AA8B', '#577590', '#277DA1'
+    ];
+
     if (isLumpsum) {
       const { invested, returns } = calculateLumpsumReturns();
       return {
         labels: ['Invested Amount', 'Est. Returns'],
         datasets: [{
           data: [invested, returns],
-          backgroundColor: ['rgba(203, 213, 225, 1)', 'rgba(0, 189, 126, 1)'],
+          backgroundColor: [chartColors[0], chartColors[1]],
           borderWidth: 0
         }]
       };
@@ -100,7 +107,7 @@ const Calculator = () => {
         labels: ['Invested Amount', 'Est. Returns'],
         datasets: [{
           data: [invested, returns],
-          backgroundColor: ['rgba(203, 213, 225, 1)', 'rgba(0, 189, 126, 1)'],
+          backgroundColor: [chartColors[2], chartColors[3]],
           borderWidth: 0
         }]
       };
@@ -110,7 +117,7 @@ const Calculator = () => {
         labels: ['Withdrawn Amount', 'Remaining Amount'],
         datasets: [{
           data: [withdrawn, remaining],
-          backgroundColor: ['rgba(239, 68, 68, 1)', 'rgba(0, 189, 126, 1)'],
+          backgroundColor: [chartColors[4], chartColors[5]],
           borderWidth: 0
         }]
       };
@@ -121,25 +128,28 @@ const Calculator = () => {
 
   return (
     <div className="outer-container">
+      <button onClick={toggleTheme}>
+        Toggle Theme
+      </button>
       <h1 className="main-heading">SIP & SWP Calculator</h1>
       <div className="inner-container">
         {/* Left Side: Calculator */}
-        <div className="calculator-container">
+        <div className={`calculator-container ${isDarkMode ? 'dark-mode' : ''}`}>
           <div className="toggle-container">
             <button
-              className={`toggle-button ${isSIP ? 'active' : ''}`}
+              className={`toggle-button ${isSIP ? 'active' : ''} ${isDarkMode ? 'dark-mode' : ''}`}
               onClick={() => { setIsSIP(true); setIsLumpsum(false); }}
             >
               SIP
             </button>
             <button
-              className={`toggle-button ${!isSIP ? 'active' : ''}`}
+              className={`toggle-button ${!isSIP ? 'active' : ''} ${isDarkMode ? 'dark-mode' : ''}`}
               onClick={() => { setIsSIP(false); setIsLumpsum(false); }}
             >
               SWP
             </button>
             <button
-              className={`toggle-button ${isLumpsum ? 'active' : ''}`}
+              className={`toggle-button ${isLumpsum ? 'active' : ''} ${isDarkMode ? 'dark-mode' : ''}`}
               onClick={() => { setIsLumpsum(true); setIsSIP(false); }}
             >
               Lumpsum
@@ -149,10 +159,11 @@ const Calculator = () => {
           {isLumpsum ? (
             <div>
               <div className="input-slider-group">
-                <label>Lumpsum Amount</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Lumpsum Amount</label>
                 <input
                   type="number"
                   value={values.lumpsumAmount}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('lumpsumAmount', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -164,10 +175,11 @@ const Calculator = () => {
                 />
               </div>
               <div className="input-slider-group">
-                <label>Expected Return Rate (p.a.)</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Expected Return Rate (p.a.)</label>
                 <input
                   type="number"
                   value={values.returnRate}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -179,10 +191,11 @@ const Calculator = () => {
                 />
               </div>
               <div className="input-slider-group">
-                <label>Time Period (Years)</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Time Period (Years)</label>
                 <input
                   type="number"
                   value={values.timePeriod}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -197,10 +210,11 @@ const Calculator = () => {
           ) : isSIP ? (
             <div>
               <div className="input-slider-group">
-                <label>Monthly Investment</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Monthly Investment</label>
                 <input
                   type="number"
                   value={values.monthlyInvestment}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('monthlyInvestment', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -212,10 +226,11 @@ const Calculator = () => {
                 />
               </div>
               <div className="input-slider-group">
-                <label>Expected Return Rate (p.a.)</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Expected Return Rate (p.a.)</label>
                 <input
                   type="number"
                   value={values.returnRate}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -227,10 +242,11 @@ const Calculator = () => {
                 />
               </div>
               <div className="input-slider-group">
-                <label>Time Period (Years)</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Time Period (Years)</label>
                 <input
                   type="number"
                   value={values.timePeriod}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -246,10 +262,11 @@ const Calculator = () => {
             <div>
               {/* SWP Sliders */}
               <div className="input-slider-group">
-                <label>Total Investment</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Total Investment</label>
                 <input
                   type="number"
                   value={values.totalInvestment}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('totalInvestment', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -261,10 +278,11 @@ const Calculator = () => {
                 />
               </div>
               <div className="input-slider-group">
-                <label>Withdrawal Per Month</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Withdrawal Per Month</label>
                 <input
                   type="number"
                   value={values.withdrawalAmount}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('withdrawalAmount', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -276,10 +294,11 @@ const Calculator = () => {
                 />
               </div>
               <div className="input-slider-group">
-                <label>Expected Return Rate (p.a.)</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Expected Return Rate (p.a.)</label>
                 <input
                   type="number"
                   value={values.returnRate}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -291,10 +310,11 @@ const Calculator = () => {
                 />
               </div>
               <div className="input-slider-group">
-                <label>Time Period (Years)</label>
+                <label className={isDarkMode ? 'dark-mode' : ''}>Time Period (Years)</label>
                 <input
                   type="number"
                   value={values.timePeriod}
+                  className={isDarkMode ? 'dark-mode' : ''}
                   onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
                 />
                 <Slider
@@ -310,48 +330,48 @@ const Calculator = () => {
         </div>
 
         {/* Right Side: Chart */}
-        <div className="chart-container">
+        <div className={`chart-container ${isDarkMode ? 'dark-mode' : ''}`}>
           <Doughnut data={getChartData()} options={{ responsive: true, maintainAspectRatio: false }} />
           <div className="results-container">
             {isLumpsum ? (
               <>
                 <div className="result-item">
-                  <span className="result-label">Invested Amount:</span>
-                  <span className="result-value">{formatIndianCurrency(results.invested)}</span>
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Invested Amount:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.invested)}</span>
                 </div>
                 <div className="result-item">
-                  <span className="result-label">Est. Returns:</span>
-                  <span className="result-value">{formatIndianCurrency(results.returns)}</span>
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Est. Returns:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.returns)}</span>
                 </div>
                 <div className="result-item">
-                  <span className="result-label">Total Value:</span>
-                  <span className="result-value">{formatIndianCurrency(results.total)}</span>
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Total Value:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.total)}</span>
                 </div>
               </>
             ) : isSIP ? (
               <>
                 <div className="result-item">
-                  <span className="result-label">Invested Amount:</span>
-                  <span className="result-value">{formatIndianCurrency(results.invested)}</span>
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Invested Amount:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.invested)}</span>
                 </div>
                 <div className="result-item">
-                  <span className="result-label">Est. Returns:</span>
-                  <span className="result-value">{formatIndianCurrency(results.returns)}</span>
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Est. Returns:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.returns)}</span>
                 </div>
                 <div className="result-item">
-                  <span className="result-label">Total Value:</span>
-                  <span className="result-value">{formatIndianCurrency(results.total)}</span>
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Total Value:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.total)}</span>
                 </div>
               </>
             ) : (
               <>
                 <div className="result-item">
-                  <span className="result-label">Total Withdrawn:</span>
-                  <span className="result-value">{formatIndianCurrency(results.withdrawn)}</span>
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Total Withdrawn:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.withdrawn)}</span>
                 </div>
                 <div className="result-item">
-                  <span className="result-label">Remaining Amount:</span>
-                  <span className="result-value">{formatIndianCurrency(results.remaining)}</span>
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Remaining Amount:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.remaining)}</span>
                 </div>
               </>
             )}

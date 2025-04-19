@@ -113,7 +113,7 @@ const Calculator = () => {
               SIP
             </button>
             <button
-              className={`toggle-button ${!isSIP ? 'active' : ''}`}
+              className={`toggle-button ${isSIP ? 'active' : ''}`}
               onClick={() => setIsSIP(false)}
             >
               SWP
@@ -137,7 +137,36 @@ const Calculator = () => {
                   step={100}
                 />
               </div>
-              {/* Add other sliders */}
+              <div className="input-slider-group">
+                <label>Expected Return Rate (p.a.)</label>
+                <input
+                  type="number"
+                  value={values.returnRate}
+                  onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.returnRate}
+                  onChange={(v) => handleChange('returnRate', v)}
+                  min={1}
+                  max={50}
+                  step={0.1}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Time Period (Years)</label>
+                <input
+                  type="number"
+                  value={values.timePeriod}
+                  onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.timePeriod}
+                  onChange={(v) => handleChange('timePeriod', v)}
+                  min={1}
+                  max={40}
+                  step={1}
+                />
+              </div>
             </div>
           ) : (
             <div>
@@ -157,7 +186,51 @@ const Calculator = () => {
                   step={1000}
                 />
               </div>
-              {/* Add other sliders */}
+              <div className="input-slider-group">
+                <label>Withdrawal Per Month</label>
+                <input
+                  type="number"
+                  value={values.withdrawalAmount}
+                  onChange={(e) => handleChange('withdrawalAmount', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.withdrawalAmount}
+                  onChange={(v) => handleChange('withdrawalAmount', v)}
+                  min={500}
+                  max={500000}
+                  step={100}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Expected Return Rate (p.a.)</label>
+                <input
+                  type="number"
+                  value={values.returnRate}
+                  onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.returnRate}
+                  onChange={(v) => handleChange('returnRate', v)}
+                  min={1}
+                  max={50}
+                  step={0.1}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Time Period (Years)</label>
+                <input
+                  type="number"
+                  value={values.timePeriod}
+                  onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.timePeriod}
+                  onChange={(v) => handleChange('timePeriod', v)}
+                  min={1}
+                  max={40}
+                  step={1}
+                />
+              </div>
             </div>
           )}
         </div>

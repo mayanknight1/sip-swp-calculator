@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -9,11 +9,7 @@ import {
 import Slider from './Slider';
 
 // Register ChartJS components
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend
-);
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const formatIndianCurrency = (value) => {
   return new Intl.NumberFormat('en-IN', {
@@ -49,11 +45,7 @@ const Calculator = () => {
     const futureValue = P * ((Math.pow(1 + r, t) - 1) / r) * (1 + r);
     const returns = futureValue - invested;
 
-    return {
-      invested,
-      returns,
-      total: futureValue
-    };
+    return { invested, returns, total: futureValue };
   };
 
   const calculateSWPReturns = () => {
@@ -84,10 +76,7 @@ const Calculator = () => {
         labels: ['Invested Amount', 'Est. Returns'],
         datasets: [{
           data: [invested, returns],
-          backgroundColor: [
-            'rgba(203, 213, 225, 1)',
-            'rgba(0, 189, 126, 1)'
-          ],
+          backgroundColor: ['rgba(203, 213, 225, 1)', 'rgba(0, 189, 126, 1)'],
           borderWidth: 0
         }]
       };
@@ -97,119 +86,170 @@ const Calculator = () => {
         labels: ['Withdrawn Amount', 'Remaining Amount'],
         datasets: [{
           data: [withdrawn, remaining],
-          backgroundColor: [
-            'rgba(239, 68, 68, 1)',
-            'rgba(0, 189, 126, 1)'
-          ],
+          backgroundColor: ['rgba(239, 68, 68, 1)', 'rgba(0, 189, 126, 1)'],
           borderWidth: 0
         }]
       };
     }
   };
 
-  const chartOptions = {
-    responsive: true,
-    cutout: '70%',
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          padding: 20,
-          usePointStyle: true
-        }
-      },
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            return `${context.label}: ${formatIndianCurrency(context.raw)}`;
-          }
-        }
-      }
-    }
-  };
-
   const results = isSIP ? calculateSIPReturns() : calculateSWPReturns();
 
   return (
-    <div className="calculator-card">
-      <div className="calculator-header">
-        <h1>SIP & SWP Calculator</h1>
-        <div className="toggle-container">
-          <button 
-            className={`toggle-button ${isSIP ? 'active' : ''}`}
-            onClick={() => setIsSIP(true)}
-          >
-            SIP
-          </button>
-          <button 
-            className={`toggle-button ${!isSIP ? 'active' : ''}`}
-            onClick={() => setIsSIP(false)}
-          >
-            SWP
-          </button>
-        </div>
-      </div>
+    <div className="outer-container">
+      <h1 className="main-heading">SIP & SWP Calculator</h1>
+      <div className="inner-container">
+        {/* Left Side: Calculator */}
+        <div className="calculator-container">
+          <div className="toggle-container">
+            <button
+              className={`toggle-button ${isSIP ? 'active' : ''}`}
+              onClick={() => setIsSIP(true)}
+            >
+              SIP
+            </button>
+            <button
+              className={`toggle-button ${!isSIP ? 'active' : ''}`}
+              onClick={() => setIsSIP(false)}
+            >
+              SWP
+            </button>
+          </div>
 
-      {isSIP ? (
-        <div>
-          <Slider
-            label="Monthly Investment"
-            value={values.monthlyInvestment}
-            onChange={(v) => handleChange('monthlyInvestment', v)}
-            min={100}
-            max={1000000}
-            step={100}
-            format={formatIndianCurrency}
-          />
-          <div className="chart-container">
-            <Doughnut data={getChartData()} options={chartOptions} />
-          </div>
-          <div className="results-container">
-            <div className="result-item">
-              <span className="result-label">Invested Amount:</span>
-              <span className="result-value">{formatIndianCurrency(results.invested)}</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Est. Returns:</span>
-              <span className="result-value">{formatIndianCurrency(results.returns)}</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Total Value:</span>
-              <span className="result-value">{formatIndianCurrency(results.total)}</span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <Slider
-            label="Total Investment"
-            value={values.totalInvestment}
-            onChange={(v) => handleChange('totalInvestment', v)}
-            min={10000}
-            max={10000000}
-            step={1000}
-            format={formatIndianCurrency}
-          />
-          <div className="chart-container">
-            <Doughnut data={getChartData()} options={chartOptions} />
-          </div>
-          <div className="results-container">
-            <div className="result-item">
-              <span className="result-label">Total Withdrawn:</span>
-              <span className="result-value">{formatIndianCurrency(results.withdrawn)}</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Remaining Amount:</span>
-              <span className="result-value">{formatIndianCurrency(results.remaining)}</span>
-            </div>
-            {!results.sustainable && (
-              <div className="warning-message">
-                Warning: Investment will be depleted before the end of the period
+          {isSIP ? (
+            <div>
+              <div className="input-slider-group">
+                <label>Monthly Investment</label>
+                <input
+                  type="number"
+                  value={values.monthlyInvestment}
+                  onChange={(e) => handleChange('monthlyInvestment', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.monthlyInvestment}
+                  onChange={(v) => handleChange('monthlyInvestment', v)}
+                  min={100}
+                  max={1000000}
+                  step={100}
+                />
               </div>
+              <div className="input-slider-group">
+                <label>Expected Return Rate (p.a.)</label>
+                <input
+                  type="number"
+                  value={values.returnRate}
+                  onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.returnRate}
+                  onChange={(v) => handleChange('returnRate', v)}
+                  min={1}
+                  max={50}
+                  step={0.1}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Time Period (Years)</label>
+                <input
+                  type="number"
+                  value={values.timePeriod}
+                  onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.timePeriod}
+                  onChange={(v) => handleChange('timePeriod', v)}
+                  min={1}
+                  max={40}
+                  step={1}
+                />
+              </div>
+            </div>
+          ) : (
+            <div>
+              {/* SWP Sliders */}
+              <div className="input-slider-group">
+                <label>Total Investment</label>
+                <input
+                  type="number"
+                  value={values.totalInvestment}
+                  onChange={(e) => handleChange('totalInvestment', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.totalInvestment}
+                  onChange={(v) => handleChange('totalInvestment', v)}
+                  min={10000}
+                  max={10000000}
+                  step={1000}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Withdrawal Per Month</label>
+                <input
+                  type="number"
+                  value={values.withdrawalAmount}
+                  onChange={(e) => handleChange('withdrawalAmount', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.withdrawalAmount}
+                  onChange={(v) => handleChange('withdrawalAmount', v)}
+                  min={500}
+                  max={500000}
+                  step={100}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Expected Return Rate (p.a.)</label>
+                <input
+                  type="number"
+                  value={values.returnRate}
+                  onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.returnRate}
+                  onChange={(v) => handleChange('returnRate', v)}
+                  min={1}
+                  max={50}
+                  step={0.1}
+                />
+              </div>
+              <div className="input-slider-group">
+                <label>Time Period (Years)</label>
+                <input
+                  type="number"
+                  value={values.timePeriod}
+                  onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
+                />
+                <Slider
+                  value={values.timePeriod}
+                  onChange={(v) => handleChange('timePeriod', v)}
+                  min={1}
+                  max={40}
+                  step={1}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Side: Chart */}
+        <div className="chart-container">
+          <Doughnut data={getChartData()} options={{ responsive: true, maintainAspectRatio: false }} />
+          <div className="results-container">
+            {isSIP ? (
+              <>
+                <div>Invested Amount: {formatIndianCurrency(results.invested)}</div>
+                <div>Est. Returns: {formatIndianCurrency(results.returns)}</div>
+                <div>Total Value: {formatIndianCurrency(results.total)}</div>
+              </>
+            ) : (
+              <>
+                <div>Total Withdrawn: {formatIndianCurrency(results.withdrawn)}</div>
+                <div>Remaining Amount: {formatIndianCurrency(results.remaining)}</div>
+              </>
             )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

@@ -59,31 +59,30 @@ const Calculator = () => {
     }
 
     const returns = futureValue - totalInvested;
+    const xirr = calculateXIRR(generateCashflows('SIP', { ...values, futureValue }));
 
     return { 
       invested: totalInvested, 
       returns, 
-      total: futureValue
+      total: futureValue,
+      xirr: xirr || values.returnRate 
     };
   };
 
   const calculateSWPReturns = () => {
     let remainingAmount = values.totalInvestment;
     let totalWithdrawn = 0;
-    let currentWithdrawal = values.withdrawalAmount;
     const monthlyRate = values.returnRate / 100 / 12;
     const months = values.timePeriod * 12;
+    const currentWithdrawal = values.withdrawalAmount;
 
     for (let month = 1; month <= months && remainingAmount > 0; month++) {
-      // First grow the remaining amount
       remainingAmount = remainingAmount * (1 + monthlyRate);
       
-      // Then withdraw if there's enough money
       if (remainingAmount >= currentWithdrawal) {
         remainingAmount -= currentWithdrawal;
         totalWithdrawn += currentWithdrawal;
       } else {
-        // If not enough money, withdraw what's left and break
         totalWithdrawn += remainingAmount;
         remainingAmount = 0;
         break;

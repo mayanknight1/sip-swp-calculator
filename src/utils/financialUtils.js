@@ -41,24 +41,21 @@ export const generateCashflows = (type, values) => {
 
   switch(type) {
     case 'SIP':
-      let currentSIP = values.monthlyInvestment;
+      const monthlyInvestment = values.monthlyInvestment;
       for (let month = 0; month < values.timePeriod * 12; month++) {
-        if (values.enableStepUp && month > 0 && month % 12 === 0) {
-          currentSIP *= (1 + values.stepUpRate / 100);
-        }
         const date = new Date(startDate);
         date.setMonth(date.getMonth() + month);
         cashflows.push({
           date,
-          amount: -currentSIP
+          amount: -monthlyInvestment
         });
       }
-      // Add final value as positive cashflow
+      // Add final value
       const finalSIPDate = new Date(startDate);
       finalSIPDate.setMonth(finalSIPDate.getMonth() + values.timePeriod * 12);
       cashflows.push({
         date: finalSIPDate,
-        amount: values.futureValue // This needs to be passed from the calculation
+        amount: values.futureValue
       });
       break;
 
@@ -69,16 +66,12 @@ export const generateCashflows = (type, values) => {
         amount: -values.totalInvestment
       });
 
-      let currentWithdrawal = values.withdrawalAmount;
       for (let month = 1; month <= values.timePeriod * 12; month++) {
-        if (values.enableStepUp && month % 12 === 0) {
-          currentWithdrawal *= (1 + values.stepUpRate / 100);
-        }
         const date = new Date(startDate);
         date.setMonth(date.getMonth() + month);
         cashflows.push({
           date,
-          amount: currentWithdrawal
+          amount: values.withdrawalAmount
         });
       }
       break;
@@ -90,24 +83,12 @@ export const generateCashflows = (type, values) => {
         amount: -values.lumpsumAmount
       });
 
-      // Yearly top-ups if step-up is enabled
-      if (values.enableStepUp) {
-        for (let year = 1; year < values.timePeriod; year++) {
-          const topUpDate = new Date(startDate);
-          topUpDate.setFullYear(topUpDate.getFullYear() + year);
-          cashflows.push({
-            date: topUpDate,
-            amount: -values.lumpsumAmount * (values.stepUpRate / 100)
-          });
-        }
-      }
-
       // Final value
       const finalDate = new Date(startDate);
       finalDate.setFullYear(finalDate.getFullYear() + values.timePeriod);
       cashflows.push({
         date: finalDate,
-        amount: values.futureValue // This needs to be passed from the calculation
+        amount: values.futureValue
       });
       break;
   }

@@ -135,8 +135,8 @@ const Calculator = () => {
 
   return (
     <div className="outer-container">
-      <ToggleSlider /> {/* Use the ToggleSlider component */}
-      <h1 className="main-heading">SIP & SWP Calculator</h1>
+      <ToggleSlider />
+      <h1 className="main-heading">Sip 'n Swip</h1>
       <div className="inner-container">
         {/* Left Side: Calculator */}
         <div className={`calculator-container ${isDarkMode ? 'dark-mode' : ''}`}>

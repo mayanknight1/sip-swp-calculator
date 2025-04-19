@@ -66,14 +66,19 @@ body.dark-mode {
 /* Main heading styling */
 .main-heading {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 2rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 }
 
 @media (max-width: 768px) {
   .main-heading {
-    font-size: 1.5rem;
+    font-size: 2rem;
     margin-bottom: 1.5rem;
   }
 }

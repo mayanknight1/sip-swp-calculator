@@ -135,6 +135,35 @@ body {
   box-shadow: 0 0 0 1px var(--primary-color);
 }
 
+/* Input slider group styling */
+.input-slider-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-slider-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.input-slider-group input[type="number"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.input-slider-group input[type="number"]:focus {
+  border-color: #00BDBD;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 189, 126, 0.25);
+}
+
 /* Right container for the chart */
 .chart-container {
   flex: 1;

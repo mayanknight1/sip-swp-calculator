@@ -176,9 +176,9 @@ const Calculator = () => {
                 <Slider
                   value={values.lumpsumAmount}
                   onChange={(v) => handleChange('lumpsumAmount', v)}
-                  min={10000}
-                  max={10000000}
-                  step={1000}
+                  min={100}
+                  max={200000}
+                  step={100}
                 />
               </div>
               <div className="input-slider-group">
@@ -228,7 +228,7 @@ const Calculator = () => {
                   value={values.monthlyInvestment}
                   onChange={(v) => handleChange('monthlyInvestment', v)}
                   min={100}
-                  max={1000000}
+                  max={200000}
                   step={100}
                 />
               </div>
@@ -279,9 +279,9 @@ const Calculator = () => {
                 <Slider
                   value={values.totalInvestment}
                   onChange={(v) => handleChange('totalInvestment', v)}
-                  min={10000}
-                  max={10000000}
-                  step={1000}
+                  min={100}
+                  max={200000}
+                  step={100}
                 />
               </div>
               <div className="input-slider-group">

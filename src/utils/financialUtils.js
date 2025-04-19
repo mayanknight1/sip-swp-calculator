@@ -1,78 +1,116 @@
 export const calculateXIRR = (cashflows) => {
-  const guess = 0.1;
+  // Initial guess rate (10%)
+  let rate = 0.1;
   const maxIterations = 100;
-  const tolerance = 0.00001;
-  let rate = guess;
+  const tolerance = 0.000001;
 
+  const getDaysBetweenDates = (date1, date2) => {
+    return (date2 - date1) / (1000 * 60 * 60 * 24);
+  };
+
+  // Newton-Raphson method
   for (let i = 0; i < maxIterations; i++) {
-    const npv = cashflows.reduce((sum, cf) => 
-      sum + cf.amount / Math.pow(1 + rate, cf.yearFraction), 0);
+    let npv = 0;
+    let derivative = 0;
     
-    if (Math.abs(npv) < tolerance) break;
+    for (const cf of cashflows) {
+      const t = getDaysBetweenDates(cashflows[0].date, cf.date) / 365;
+      const factor = Math.pow(1 + rate, t);
+      npv += cf.amount / factor;
+      derivative -= t * cf.amount / Math.pow(1 + rate, t + 1);
+    }
 
-    const derivativeNPV = cashflows.reduce((sum, cf) => 
-      sum - cf.yearFraction * cf.amount / Math.pow(1 + rate, cf.yearFraction + 1), 0);
-    
-    rate = rate - npv / derivativeNPV;
+    // Check if we've reached desired accuracy
+    if (Math.abs(npv) < tolerance) {
+      return rate * 100; // Convert to percentage
+    }
+
+    // Update rate for next iteration
+    rate = rate - npv / derivative;
+
+    // Check for non-convergence
+    if (rate < -1) return null;
   }
 
-  return rate * 100;
+  return null; // Return null if no solution found
 };
 
 export const generateCashflows = (type, values) => {
   const cashflows = [];
-  const { monthlyInvestment, totalInvestment, withdrawalAmount, lumpsumAmount, 
-    timePeriod, enableStepUp, stepUpRate } = values;
+  const startDate = new Date();
 
   switch(type) {
     case 'SIP':
-      let currentSIP = monthlyInvestment;
-      for (let month = 0; month < timePeriod * 12; month++) {
-        if (enableStepUp && month > 0 && month % 12 === 0) {
-          currentSIP *= (1 + stepUpRate / 100);
+      let currentSIP = values.monthlyInvestment;
+      for (let month = 0; month < values.timePeriod * 12; month++) {
+        if (values.enableStepUp && month > 0 && month % 12 === 0) {
+          currentSIP *= (1 + values.stepUpRate / 100);
         }
+        const date = new Date(startDate);
+        date.setMonth(date.getMonth() + month);
         cashflows.push({
-          amount: -currentSIP,
-          yearFraction: month / 12
+          date,
+          amount: -currentSIP
         });
       }
+      // Add final value as positive cashflow
+      const finalSIPDate = new Date(startDate);
+      finalSIPDate.setMonth(finalSIPDate.getMonth() + values.timePeriod * 12);
+      cashflows.push({
+        date: finalSIPDate,
+        amount: values.futureValue // This needs to be passed from the calculation
+      });
       break;
 
     case 'SWP':
-      let currentWithdrawal = withdrawalAmount;
+      // Initial investment
       cashflows.push({
-        amount: -totalInvestment,
-        yearFraction: 0
+        date: startDate,
+        amount: -values.totalInvestment
       });
-      for (let month = 1; month <= timePeriod * 12; month++) {
-        if (enableStepUp && month % 12 === 0) {
-          currentWithdrawal *= (1 + stepUpRate / 100);
+
+      let currentWithdrawal = values.withdrawalAmount;
+      for (let month = 1; month <= values.timePeriod * 12; month++) {
+        if (values.enableStepUp && month % 12 === 0) {
+          currentWithdrawal *= (1 + values.stepUpRate / 100);
         }
+        const date = new Date(startDate);
+        date.setMonth(date.getMonth() + month);
         cashflows.push({
-          amount: currentWithdrawal,
-          yearFraction: month / 12
+          date,
+          amount: currentWithdrawal
         });
       }
       break;
 
     case 'LUMPSUM':
+      // Initial investment
       cashflows.push({
-        amount: -lumpsumAmount,
-        yearFraction: 0
+        date: startDate,
+        amount: -values.lumpsumAmount
       });
-      if (enableStepUp) {
-        for (let year = 1; year < timePeriod; year++) {
-          const topUp = lumpsumAmount * (stepUpRate / 100);
+
+      // Yearly top-ups if step-up is enabled
+      if (values.enableStepUp) {
+        for (let year = 1; year < values.timePeriod; year++) {
+          const topUpDate = new Date(startDate);
+          topUpDate.setFullYear(topUpDate.getFullYear() + year);
           cashflows.push({
-            amount: -topUp,
-            yearFraction: year
+            date: topUpDate,
+            amount: -values.lumpsumAmount * (values.stepUpRate / 100)
           });
         }
       }
-      break;
 
-    default:
+      // Final value
+      const finalDate = new Date(startDate);
+      finalDate.setFullYear(finalDate.getFullYear() + values.timePeriod);
+      cashflows.push({
+        date: finalDate,
+        amount: values.futureValue // This needs to be passed from the calculation
+      });
       break;
   }
+
   return cashflows;
 };

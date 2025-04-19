@@ -57,7 +57,6 @@ const Calculator = () => {
     let currentMonthlyInvestment = values.monthlyInvestment;
 
     for (let month = 1; month <= months; month++) {
-      // Increase investment on yearly anniversary if step-up is enabled
       if (values.enableStepUp && month > 1 && month % 12 === 1) {
         currentMonthlyInvestment *= (1 + values.stepUpRate / 100);
       }
@@ -67,9 +66,14 @@ const Calculator = () => {
     }
 
     const returns = futureValue - totalInvested;
-    const xirr = calculateXIRR(generateCashflows('SIP', values));
+    const xirr = calculateXIRR(generateCashflows('SIP', { ...values, futureValue }));
 
-    return { invested: totalInvested, returns, total: futureValue, xirr };
+    return { 
+      invested: totalInvested, 
+      returns, 
+      total: futureValue, 
+      xirr: xirr || values.returnRate // Fallback to return rate if XIRR calculation fails
+    };
   };
 
   const calculateSWPReturns = () => {
@@ -88,15 +92,14 @@ const Calculator = () => {
       totalWithdrawn += currentWithdrawal;
     }
 
-    const xirr = calculateXIRR(generateCashflows('SWP', values));
-    const finalValue = Math.max(0, remainingAmount) + totalWithdrawn;
+    const xirr = calculateXIRR(generateCashflows('SWP', { ...values, remainingAmount }));
 
     return {
       withdrawn: totalWithdrawn,
       remaining: Math.max(0, remainingAmount),
       sustainable: remainingAmount > 0,
-      xirr,
-      total: finalValue
+      xirr: xirr || values.returnRate, // Fallback to return rate if XIRR calculation fails
+      total: Math.max(0, remainingAmount) + totalWithdrawn
     };
   };
 
@@ -106,7 +109,6 @@ const Calculator = () => {
     const time = values.timePeriod;
     let totalInvested = principal;
 
-    // Calculate yearly top-ups if enabled
     if (values.enableStepUp) {
       for (let year = 1; year < time; year++) {
         const topUp = principal * (values.stepUpRate / 100);
@@ -117,12 +119,16 @@ const Calculator = () => {
 
     const futureValue = principal * Math.pow(1 + rate, time);
     const returns = futureValue - totalInvested;
-    const xirr = calculateXIRR(generateCashflows('LUMPSUM', values));
+    const xirr = calculateXIRR(generateCashflows('LUMPSUM', { ...values, futureValue }));
 
-    return { invested: totalInvested, returns, total: futureValue, xirr };
+    return { 
+      invested: totalInvested, 
+      returns, 
+      total: futureValue, 
+      xirr: xirr || values.returnRate // Fallback to return rate if XIRR calculation fails
+    };
   };
 
-  // Update the getChartData function with contrasting colors
   const getChartData = () => {
     const chartColors = {
       sip: ['#FF6B6B', '#4ECDC4'],     // Red & Teal

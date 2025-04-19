@@ -479,41 +479,32 @@ body.dark-mode {
 
 /* Theme toggle wrapper positioning */
 .theme-toggle-wrapper {
-  position: sticky;
-  top: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
-  padding: 0.75rem;
+  padding: 0.75rem 0 0.75rem 0;
   background: var(--light-container);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  transition: all 0.3s ease;
-  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 10;
 }
 
 .theme-toggle-wrapper.dark-mode {
   background: var(--dark-container);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 768px) {
   .theme-toggle-wrapper {
-    position: sticky;
-    top: 0;
-    right: 0;
-    left: 0;
+    position: static;      /* Remove sticky/fixed */
     width: 100%;
-    border-radius: 0;
-    margin: -1rem -1rem 1rem -1rem;
-    padding: 0.75rem 1rem;
-  }
-
-  /* Remove the extra padding we added before */
-  .outer-container {
-    padding-top: var(--container-padding);
+    border-radius: var(--border-radius);
+    margin: 0 0 1rem 0;
+    padding: 0.5rem 0;
+    box-shadow: none;
   }
 }
 

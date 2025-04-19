@@ -17,4 +17,7 @@ Thumbs.db
 # Environment
 .env
 
+# ESLint cache
+.eslintcache
+
 

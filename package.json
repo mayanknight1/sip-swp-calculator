@@ -9,15 +9,6 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "keywords": [
-    "SIP",
-    "SWP",
-    "calculator",
-    "investment",
-    "finance"
-  ],
-  "author": "Your Name",
-  "license": "MIT",
   "dependencies": {
     "chart.js": "^3.9.1",
     "react": "^18.2.0",
@@ -39,15 +30,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-    ]
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-react"
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-class-properties"
     ]
   }
 }

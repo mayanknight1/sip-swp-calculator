@@ -246,6 +246,12 @@ body.dark-mode {
 .custom-slider {
   -webkit-appearance: none;
   appearance: none;
+  appearance: none;
+  appearance: none;
+  appearance: none;
+  appearance: none;
+  appearance: none;
+  appearance: none;
   width: 100%;
   height: 6px;
   border-radius: 3px;
@@ -537,6 +543,8 @@ body.dark-mode {
 input[type="range"] {
   width: 100%;
   -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   height: 8px;
   border-radius: 4px;
   background: #ddd;
@@ -582,4 +590,49 @@ input {
   width: 16px;
   left: 3px;
   bottom: 3px;
+}
+
+/* Step-up container styling */
+.step-up-container {
+  background: var(--light-container);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+}
+
+.step-up-container.dark-mode {
+  background: var(--dark-container);
+}
+
+/* XIRR result styling */
+.xirr-result {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Tooltip styling */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.tooltip .tooltip-content {
+  visibility: hidden;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-text);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.tooltip:hover .tooltip-content {
+  visibility: visible;
 }

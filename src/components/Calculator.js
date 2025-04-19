@@ -9,6 +9,8 @@ import {
 import Slider from './Slider';
 import { useTheme } from '../ThemeContext';
 import ToggleSlider from './ToggleSlider'; // Import the ToggleSlider component
+// import Tooltip from './Tooltip'; // Removed duplicate import
+import { calculateXIRR } from '../utils/financialUtils'; // Create this utility
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -31,6 +33,9 @@ const Calculator = () => {
     timePeriod: 10,
     withdrawalAmount: 10000,
     lumpsumAmount: 1000000,
+    stepUpRate: 0,
+    enableStepUp: false,
+    expectedXIRR: 12,
   });
 
   const { isDarkMode } = useTheme();
@@ -45,47 +50,76 @@ const Calculator = () => {
   };
 
   const calculateSIPReturns = () => {
-    const P = values.monthlyInvestment;
-    const r = values.returnRate / 100 / 12;
-    const t = values.timePeriod * 12;
+    let totalInvested = 0;
+    let futureValue = 0;
+    const monthlyRate = values.returnRate / 100 / 12;
+    const months = values.timePeriod * 12;
+    let currentMonthlyInvestment = values.monthlyInvestment;
 
-    const invested = P * t;
-    const futureValue = P * ((Math.pow(1 + r, t) - 1) / r) * (1 + r);
-    const returns = futureValue - invested;
+    for (let month = 1; month <= months; month++) {
+      // Increase investment on yearly anniversary if step-up is enabled
+      if (values.enableStepUp && month > 1 && month % 12 === 1) {
+        currentMonthlyInvestment *= (1 + values.stepUpRate / 100);
+      }
 
-    return { invested, returns, total: futureValue };
-  };
+      totalInvested += currentMonthlyInvestment;
+      futureValue = (futureValue + currentMonthlyInvestment) * (1 + monthlyRate);
+    }
 
-  const calculateLumpsumReturns = () => {
-    const principal = values.lumpsumAmount;
-    const rate = values.returnRate / 100;
-    const time = values.timePeriod;
+    const returns = futureValue - totalInvested;
+    const xirr = calculateXIRR(generateCashflows('SIP', values));
 
-    const futureValue = principal * Math.pow(1 + rate, time);
-    const returns = futureValue - principal;
-
-    return { invested: principal, returns, total: futureValue };
+    return { invested: totalInvested, returns, total: futureValue, xirr };
   };
 
   const calculateSWPReturns = () => {
-    const principal = values.totalInvestment;
-    const monthlyWithdrawal = values.withdrawalAmount;
+    let remainingAmount = values.totalInvestment;
+    let totalWithdrawn = 0;
+    let currentWithdrawal = values.withdrawalAmount;
     const monthlyRate = values.returnRate / 100 / 12;
     const months = values.timePeriod * 12;
 
-    let remainingAmount = principal;
-    let totalWithdrawn = 0;
+    for (let month = 1; month <= months && remainingAmount > 0; month++) {
+      if (values.enableStepUp && month > 1 && month % 12 === 1) {
+        currentWithdrawal *= (1 + values.stepUpRate / 100);
+      }
 
-    for (let i = 0; i < months && remainingAmount > 0; i++) {
-      remainingAmount = (remainingAmount * (1 + monthlyRate)) - monthlyWithdrawal;
-      totalWithdrawn += monthlyWithdrawal;
+      remainingAmount = (remainingAmount * (1 + monthlyRate)) - currentWithdrawal;
+      totalWithdrawn += currentWithdrawal;
     }
+
+    const xirr = calculateXIRR(generateCashflows('SWP', values));
+    const finalValue = Math.max(0, remainingAmount) + totalWithdrawn;
 
     return {
       withdrawn: totalWithdrawn,
       remaining: Math.max(0, remainingAmount),
-      sustainable: remainingAmount > 0
+      sustainable: remainingAmount > 0,
+      xirr,
+      total: finalValue
     };
+  };
+
+  const calculateLumpsumReturns = () => {
+    let principal = values.lumpsumAmount;
+    const rate = values.returnRate / 100;
+    const time = values.timePeriod;
+    let totalInvested = principal;
+
+    // Calculate yearly top-ups if enabled
+    if (values.enableStepUp) {
+      for (let year = 1; year < time; year++) {
+        const topUp = principal * (values.stepUpRate / 100);
+        totalInvested += topUp;
+        principal += topUp;
+      }
+    }
+
+    const futureValue = principal * Math.pow(1 + rate, time);
+    const returns = futureValue - totalInvested;
+    const xirr = calculateXIRR(generateCashflows('LUMPSUM', values));
+
+    return { invested: totalInvested, returns, total: futureValue, xirr };
   };
 
   // Update the getChartData function with contrasting colors
@@ -131,6 +165,11 @@ const Calculator = () => {
         }]
       };
     }
+  };
+
+  const getStepUpTooltip = () => {
+    const mode = isLumpsum ? 'top-up' : (isSIP ? 'investment' : 'withdrawal');
+    return `Your ${mode} will increase by ${values.stepUpRate}% every year on the anniversary month`;
   };
 
   const results = isLumpsum ? calculateLumpsumReturns() : (isSIP ? calculateSIPReturns() : calculateSWPReturns());
@@ -213,6 +252,42 @@ const Calculator = () => {
                   step={1}
                 />
               </div>
+              <div className="input-slider-group">
+                <div className="step-up-container">
+                  <label className={isDarkMode ? 'dark-mode' : ''}>
+                    Enable Step-up
+                    <input
+                      type="checkbox"
+                      checked={values.enableStepUp}
+                      onChange={(e) => handleChange('enableStepUp', e.target.checked)}
+                    />
+                  </label>
+                  {values.enableStepUp && (
+                    <>
+                      <label className={isDarkMode ? 'dark-mode' : ''}>
+                        Step-up Rate (% per year)
+                        <Tooltip content={getStepUpTooltip()} />
+                      </label>
+                      <input
+                        type="number"
+                        value={values.stepUpRate}
+                        className={isDarkMode ? 'dark-mode' : ''}
+                        onChange={(e) => handleChange('stepUpRate', parseFloat(e.target.value))}
+                        min="0"
+                        max="100"
+                        step="0.5"
+                      />
+                      <Slider
+                        value={values.stepUpRate}
+                        onChange={(v) => handleChange('stepUpRate', v)}
+                        min={0}
+                        max={100}
+                        step={0.5}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           ) : isSIP ? (
             <div>
@@ -264,6 +339,42 @@ const Calculator = () => {
                   step={1}
                 />
               </div>
+              <div className="input-slider-group">
+                <div className="step-up-container">
+                  <label className={isDarkMode ? 'dark-mode' : ''}>
+                    Enable Step-up
+                    <input
+                      type="checkbox"
+                      checked={values.enableStepUp}
+                      onChange={(e) => handleChange('enableStepUp', e.target.checked)}
+                    />
+                  </label>
+                  {values.enableStepUp && (
+                    <>
+                      <label className={isDarkMode ? 'dark-mode' : ''}>
+                        Step-up Rate (% per year)
+                        <Tooltip content={getStepUpTooltip()} />
+                      </label>
+                      <input
+                        type="number"
+                        value={values.stepUpRate}
+                        className={isDarkMode ? 'dark-mode' : ''}
+                        onChange={(e) => handleChange('stepUpRate', parseFloat(e.target.value))}
+                        min="0"
+                        max="100"
+                        step="0.5"
+                      />
+                      <Slider
+                        value={values.stepUpRate}
+                        onChange={(v) => handleChange('stepUpRate', v)}
+                        min={0}
+                        max={100}
+                        step={0.5}
+                      />
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           ) : (
             <div>
@@ -280,7 +391,7 @@ const Calculator = () => {
                   value={values.totalInvestment}
                   onChange={(v) => handleChange('totalInvestment', v)}
                   min={100}
-                  max={200000}
+                  max={2000000}  // Updated from 200000 to 2000000
                   step={100}
                 />
               </div>
@@ -295,8 +406,8 @@ const Calculator = () => {
                 <Slider
                   value={values.withdrawalAmount}
                   onChange={(v) => handleChange('withdrawalAmount', v)}
-                  min={500}
-                  max={500000}
+                  min={100}      // Updated from 500 to 100
+                  max={50000}    // Updated from 500000 to 50000
                   step={100}
                 />
               </div>
@@ -331,6 +442,42 @@ const Calculator = () => {
                   max={40}
                   step={1}
                 />
+              </div>
+              <div className="input-slider-group">
+                <div className="step-up-container">
+                  <label className={isDarkMode ? 'dark-mode' : ''}>
+                    Enable Step-up
+                    <input
+                      type="checkbox"
+                      checked={values.enableStepUp}
+                      onChange={(e) => handleChange('enableStepUp', e.target.checked)}
+                    />
+                  </label>
+                  {values.enableStepUp && (
+                    <>
+                      <label className={isDarkMode ? 'dark-mode' : ''}>
+                        Step-up Rate (% per year)
+                        <Tooltip content={getStepUpTooltip()} />
+                      </label>
+                      <input
+                        type="number"
+                        value={values.stepUpRate}
+                        className={isDarkMode ? 'dark-mode' : ''}
+                        onChange={(e) => handleChange('stepUpRate', parseFloat(e.target.value))}
+                        min="0"
+                        max="100"
+                        step="0.5"
+                      />
+                      <Slider
+                        value={values.stepUpRate}
+                        onChange={(v) => handleChange('stepUpRate', v)}
+                        min={0}
+                        max={100}
+                        step={0.5}
+                      />
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -376,6 +523,14 @@ const Calculator = () => {
                   <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Total Value:</span>
                   <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.total)}</span>
                 </div>
+                <div className="result-item xirr-result">
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>
+                    Effective XIRR:
+                  </span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>
+                    {results.xirr.toFixed(2)}%
+                  </span>
+                </div>
               </>
             ) : isSIP ? (
               <>
@@ -391,6 +546,14 @@ const Calculator = () => {
                   <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Total Value:</span>
                   <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.total)}</span>
                 </div>
+                <div className="result-item xirr-result">
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>
+                    Effective XIRR:
+                  </span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>
+                    {results.xirr.toFixed(2)}%
+                  </span>
+                </div>
               </>
             ) : (
               <>
@@ -401,6 +564,18 @@ const Calculator = () => {
                 <div className="result-item">
                   <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Remaining Amount:</span>
                   <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.remaining)}</span>
+                </div>
+                <div className="result-item">
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>Final Value:</span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>{formatIndianCurrency(results.total)}</span>
+                </div>
+                <div className="result-item xirr-result">
+                  <span className={`result-label ${isDarkMode ? 'dark-mode' : ''}`}>
+                    Effective XIRR:
+                  </span>
+                  <span className={`result-value ${isDarkMode ? 'dark-mode' : ''}`}>
+                    {results.xirr.toFixed(2)}%
+                  </span>
                 </div>
               </>
             )}

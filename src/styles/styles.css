@@ -592,52 +592,6 @@ input {
   bottom: 3px;
 }
 
-/* Step-up container styling */
-.step-up-container {
-  background: var(--light-container);
-  padding: 1rem;
-  border-radius: var(--border-radius);
-  margin-top: 1rem;
-}
-
-.step-up-container.dark-mode {
-  background: var(--dark-container);
-}
-
-/* Step-up input group styling */
-.step-up-input-group {
-  margin-top: 1rem;
-}
-
-.step-up-inputs {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.step-up-inputs input[type="number"] {
-  width: 80px;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-}
-
-select {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  background-color: var(--input-bg);
-  color: var(--text-color);
-  margin-top: 0.5rem;
-}
-
-select.dark-mode {
-  background-color: var(--dark-input-bg);
-  color: var(--dark-text-color);
-  border-color: var(--dark-border-color);
-}
-
 /* XIRR result styling */
 .xirr-result {
   margin-top: 1rem;

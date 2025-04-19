@@ -32,11 +32,7 @@ const Calculator = () => {
     returnRate: 12,
     timePeriod: 10,
     withdrawalAmount: 10000,
-    lumpsumAmount: 1000000,
-    stepUpRate: 0,
-    enableStepUp: false,
-    expectedXIRR: 12,
-    investmentFrequency: 'monthly', // Add this new state
+    lumpsumAmount: 1000000
   });
 
   const { isDarkMode } = useTheme();
@@ -53,36 +49,21 @@ const Calculator = () => {
   const calculateSIPReturns = () => {
     let totalInvested = 0;
     let futureValue = 0;
-    const annualRate = values.returnRate / 100;
-    const isMonthly = values.investmentFrequency === 'monthly';
-    const periodsPerYear = isMonthly ? 12 : 1;
-    const periodRate = annualRate / periodsPerYear;
-    const totalPeriods = values.timePeriod * periodsPerYear;
-    let currentInvestment = isMonthly ? values.monthlyInvestment : values.monthlyInvestment * 12;
+    const monthlyRate = values.returnRate / 100 / 12;
+    const months = values.timePeriod * 12;
+    const monthlyInvestment = values.monthlyInvestment;
 
-    for (let period = 1; period <= totalPeriods; period++) {
-      // Apply step-up at the start of each year
-      if (values.enableStepUp && period > 1 && 
-         ((isMonthly && (period - 1) % 12 === 0) || (!isMonthly && period > 1))) {
-        currentInvestment *= (1 + values.stepUpRate / 100);
-      }
-
-      totalInvested += currentInvestment;
-      futureValue = (futureValue + currentInvestment) * (1 + periodRate);
+    for (let month = 1; month <= months; month++) {
+      totalInvested += monthlyInvestment;
+      futureValue = (futureValue + monthlyInvestment) * (1 + monthlyRate);
     }
 
     const returns = futureValue - totalInvested;
-    const xirr = calculateXIRR(generateCashflows('SIP', { 
-      ...values, 
-      futureValue,
-      isMonthly 
-    }));
 
     return { 
       invested: totalInvested, 
       returns, 
-      total: futureValue, 
-      xirr: xirr || values.returnRate 
+      total: futureValue
     };
   };
 
@@ -94,11 +75,6 @@ const Calculator = () => {
     const months = values.timePeriod * 12;
 
     for (let month = 1; month <= months && remainingAmount > 0; month++) {
-      // Apply step-up at the start of each year (except first year)
-      if (values.enableStepUp && month > 1 && (month - 1) % 12 === 0) {
-        currentWithdrawal *= (1 + values.stepUpRate / 100);
-      }
-
       // First grow the remaining amount
       remainingAmount = remainingAmount * (1 + monthlyRate);
       
@@ -132,20 +108,7 @@ const Calculator = () => {
     const time = values.timePeriod;
     let totalInvested = principal;
 
-    // If step-up is enabled, calculate yearly top-ups
-    if (values.enableStepUp) {
-      for (let year = 1; year < time; year++) {
-        const yearlyTopUp = principal * (values.stepUpRate / 100);
-        totalInvested += yearlyTopUp;
-        // Add top-up to principal and let it grow
-        principal = (principal * (1 + rate)) + yearlyTopUp;
-      }
-      // Calculate final year's growth
-      principal = principal * (1 + rate);
-    } else {
-      // Simple compound growth without top-ups
-      principal = principal * Math.pow(1 + rate, time);
-    }
+    principal = principal * Math.pow(1 + rate, time);
 
     const futureValue = principal;
     const returns = futureValue - totalInvested;
@@ -201,11 +164,6 @@ const Calculator = () => {
         }]
       };
     }
-  };
-
-  const getStepUpTooltip = () => {
-    const mode = isLumpsum ? 'top-up' : (isSIP ? 'investment' : 'withdrawal');
-    return `Your ${mode} will increase by ${values.stepUpRate}% every year on the anniversary month`;
   };
 
   const results = isLumpsum ? calculateLumpsumReturns() : (isSIP ? calculateSIPReturns() : calculateSWPReturns());
@@ -288,57 +246,6 @@ const Calculator = () => {
                   step={1}
                 />
               </div>
-              <div className="input-slider-group">
-                <label className={isDarkMode ? 'dark-mode' : ''}>Investment Frequency</label>
-                <select 
-                  value={values.investmentFrequency}
-                  onChange={(e) => handleChange('investmentFrequency', e.target.value)}
-                  className={isDarkMode ? 'dark-mode' : ''}
-                >
-                  <option value="monthly">Monthly Investment</option>
-                  <option value="yearly">Yearly Investment</option>
-                </select>
-              </div>
-              <div className="input-slider-group">
-                <div className="step-up-container">
-                  <label className={isDarkMode ? 'dark-mode' : ''}>
-                    Enable Step-up
-                    <input
-                      type="checkbox"
-                      checked={values.enableStepUp}
-                      onChange={(e) => handleChange('enableStepUp', e.target.checked)}
-                    />
-                  </label>
-                  {values.enableStepUp && (
-                    <>
-                      <div className="step-up-input-group">
-                        <label className={isDarkMode ? 'dark-mode' : ''}>
-                          Step-up Rate (% per year)
-                          <Tooltip content={getStepUpTooltip()} />
-                        </label>
-                        <div className="step-up-inputs">
-                          <input
-                            type="number"
-                            value={values.stepUpRate}
-                            className={isDarkMode ? 'dark-mode' : ''}
-                            onChange={(e) => handleChange('stepUpRate', parseFloat(e.target.value))}
-                            min="0"
-                            max="100"
-                            step="0.5"
-                          />
-                          <Slider
-                            value={values.stepUpRate}
-                            onChange={(v) => handleChange('stepUpRate', v)}
-                            min={0}
-                            max={100}
-                            step={0.5}
-                          />
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
             </div>
           ) : isSIP ? (
             <div>
@@ -389,57 +296,6 @@ const Calculator = () => {
                   max={40}
                   step={1}
                 />
-              </div>
-              <div className="input-slider-group">
-                <label className={isDarkMode ? 'dark-mode' : ''}>Investment Frequency</label>
-                <select 
-                  value={values.investmentFrequency}
-                  onChange={(e) => handleChange('investmentFrequency', e.target.value)}
-                  className={isDarkMode ? 'dark-mode' : ''}
-                >
-                  <option value="monthly">Monthly Investment</option>
-                  <option value="yearly">Yearly Investment</option>
-                </select>
-              </div>
-              <div className="input-slider-group">
-                <div className="step-up-container">
-                  <label className={isDarkMode ? 'dark-mode' : ''}>
-                    Enable Step-up
-                    <input
-                      type="checkbox"
-                      checked={values.enableStepUp}
-                      onChange={(e) => handleChange('enableStepUp', e.target.checked)}
-                    />
-                  </label>
-                  {values.enableStepUp && (
-                    <>
-                      <div className="step-up-input-group">
-                        <label className={isDarkMode ? 'dark-mode' : ''}>
-                          Step-up Rate (% per year)
-                          <Tooltip content={getStepUpTooltip()} />
-                        </label>
-                        <div className="step-up-inputs">
-                          <input
-                            type="number"
-                            value={values.stepUpRate}
-                            className={isDarkMode ? 'dark-mode' : ''}
-                            onChange={(e) => handleChange('stepUpRate', parseFloat(e.target.value))}
-                            min="0"
-                            max="100"
-                            step="0.5"
-                          />
-                          <Slider
-                            value={values.stepUpRate}
-                            onChange={(v) => handleChange('stepUpRate', v)}
-                            min={0}
-                            max={100}
-                            step={0.5}
-                          />
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
               </div>
             </div>
           ) : (
@@ -508,42 +364,6 @@ const Calculator = () => {
                   max={40}
                   step={1}
                 />
-              </div>
-              <div className="input-slider-group">
-                <div className="step-up-container">
-                  <label className={isDarkMode ? 'dark-mode' : ''}>
-                    Enable Step-up
-                    <input
-                      type="checkbox"
-                      checked={values.enableStepUp}
-                      onChange={(e) => handleChange('enableStepUp', e.target.checked)}
-                    />
-                  </label>
-                  {values.enableStepUp && (
-                    <>
-                      <label className={isDarkMode ? 'dark-mode' : ''}>
-                        Step-up Rate (% per year)
-                        <Tooltip content={getStepUpTooltip()} />
-                      </label>
-                      <input
-                        type="number"
-                        value={values.stepUpRate}
-                        className={isDarkMode ? 'dark-mode' : ''}
-                        onChange={(e) => handleChange('stepUpRate', parseFloat(e.target.value))}
-                        min="0"
-                        max="100"
-                        step="0.5"
-                      />
-                      <Slider
-                        value={values.stepUpRate}
-                        onChange={(v) => handleChange('stepUpRate', v)}
-                        min={0}
-                        max={100}
-                        step={0.5}
-                      />
-                    </>
-                  )}
-                </div>
               </div>
             </div>
           )}

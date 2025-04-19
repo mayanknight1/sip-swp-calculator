@@ -8,6 +8,7 @@ import {
 } from 'chart.js';
 import Slider from './Slider';
 import { useTheme } from '../ThemeContext';
+import ToggleSlider from './ToggleSlider'; // Import the ToggleSlider component
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -32,7 +33,7 @@ const Calculator = () => {
     lumpsumAmount: 1000000,
   });
 
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode } = useTheme();
 
   const handleChange = (key, value) => {
     setValues((prevValues) => ({
@@ -128,9 +129,7 @@ const Calculator = () => {
 
   return (
     <div className="outer-container">
-      <button onClick={toggleTheme}>
-        Toggle Theme
-      </button>
+      <ToggleSlider /> {/* Use the ToggleSlider component */}
       <h1 className="main-heading">SIP & SWP Calculator</h1>
       <div className="inner-container">
         {/* Left Side: Calculator */}

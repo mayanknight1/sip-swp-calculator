@@ -57,7 +57,8 @@ const Calculator = () => {
     let currentMonthlyInvestment = values.monthlyInvestment;
 
     for (let month = 1; month <= months; month++) {
-      if (values.enableStepUp && month > 1 && month % 12 === 1) {
+      // Apply step-up at the start of each year (except first year)
+      if (values.enableStepUp && month > 1 && (month - 1) % 12 === 0) {
         currentMonthlyInvestment *= (1 + values.stepUpRate / 100);
       }
 
@@ -72,7 +73,7 @@ const Calculator = () => {
       invested: totalInvested, 
       returns, 
       total: futureValue, 
-      xirr: xirr || values.returnRate // Fallback to return rate if XIRR calculation fails
+      xirr: xirr || values.returnRate 
     };
   };
 
@@ -84,22 +85,35 @@ const Calculator = () => {
     const months = values.timePeriod * 12;
 
     for (let month = 1; month <= months && remainingAmount > 0; month++) {
-      if (values.enableStepUp && month > 1 && month % 12 === 1) {
+      // Apply step-up at the start of each year (except first year)
+      if (values.enableStepUp && month > 1 && (month - 1) % 12 === 0) {
         currentWithdrawal *= (1 + values.stepUpRate / 100);
       }
 
-      remainingAmount = (remainingAmount * (1 + monthlyRate)) - currentWithdrawal;
-      totalWithdrawn += currentWithdrawal;
+      // First grow the remaining amount
+      remainingAmount = remainingAmount * (1 + monthlyRate);
+      
+      // Then withdraw if there's enough money
+      if (remainingAmount >= currentWithdrawal) {
+        remainingAmount -= currentWithdrawal;
+        totalWithdrawn += currentWithdrawal;
+      } else {
+        // If not enough money, withdraw what's left and break
+        totalWithdrawn += remainingAmount;
+        remainingAmount = 0;
+        break;
+      }
     }
 
-    const xirr = calculateXIRR(generateCashflows('SWP', { ...values, remainingAmount }));
+    const finalValue = Math.max(0, remainingAmount) + totalWithdrawn;
+    const xirr = calculateXIRR(generateCashflows('SWP', { ...values, finalValue }));
 
     return {
       withdrawn: totalWithdrawn,
       remaining: Math.max(0, remainingAmount),
       sustainable: remainingAmount > 0,
-      xirr: xirr || values.returnRate, // Fallback to return rate if XIRR calculation fails
-      total: Math.max(0, remainingAmount) + totalWithdrawn
+      xirr: xirr || values.returnRate,
+      total: finalValue
     };
   };
 
@@ -109,15 +123,22 @@ const Calculator = () => {
     const time = values.timePeriod;
     let totalInvested = principal;
 
+    // If step-up is enabled, calculate yearly top-ups
     if (values.enableStepUp) {
       for (let year = 1; year < time; year++) {
-        const topUp = principal * (values.stepUpRate / 100);
-        totalInvested += topUp;
-        principal += topUp;
+        const yearlyTopUp = principal * (values.stepUpRate / 100);
+        totalInvested += yearlyTopUp;
+        // Add top-up to principal and let it grow
+        principal = (principal * (1 + rate)) + yearlyTopUp;
       }
+      // Calculate final year's growth
+      principal = principal * (1 + rate);
+    } else {
+      // Simple compound growth without top-ups
+      principal = principal * Math.pow(1 + rate, time);
     }
 
-    const futureValue = principal * Math.pow(1 + rate, time);
+    const futureValue = principal;
     const returns = futureValue - totalInvested;
     const xirr = calculateXIRR(generateCashflows('LUMPSUM', { ...values, futureValue }));
 
@@ -125,7 +146,7 @@ const Calculator = () => {
       invested: totalInvested, 
       returns, 
       total: futureValue, 
-      xirr: xirr || values.returnRate // Fallback to return rate if XIRR calculation fails
+      xirr: xirr || values.returnRate 
     };
   };
 

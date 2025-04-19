@@ -135,7 +135,7 @@ const Calculator = () => {
 
   return (
     <div className="outer-container">
-      <ToggleSlider />
+      <ToggleSlider />  {/* Make sure it's here */}
       <h1 className="main-heading">Sip 'n Swip</h1>
       <div className="inner-container">
         {/* Left Side: Calculator */}

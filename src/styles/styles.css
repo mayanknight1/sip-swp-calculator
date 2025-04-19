@@ -71,16 +71,22 @@ body.dark-mode {
   font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 2rem;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(135deg, #FF6B6B, #4ECDC4); /* Changed gradient colors */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
+/* Add responsive styles for mobile */
 @media (max-width: 768px) {
   .main-heading {
     font-size: 2rem;
-    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #FF6B6B, #4ECDC4); /* Same gradient for consistency */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 

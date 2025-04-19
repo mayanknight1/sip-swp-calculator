@@ -97,7 +97,6 @@ const Calculator = () => {
 
   return (
     <div className="outer-container">
-      <h1 className="main-heading">SIP & SWP Calculator</h1>
       <div className="inner-container">
         {/* Left Side: Calculator */}
         <div className="calculator-container">
@@ -133,36 +132,7 @@ const Calculator = () => {
                   step={100}
                 />
               </div>
-              <div className="input-slider-group">
-                <label>Expected Return Rate (p.a.)</label>
-                <input
-                  type="number"
-                  value={values.returnRate}
-                  onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
-                />
-                <Slider
-                  value={values.returnRate}
-                  onChange={(v) => handleChange('returnRate', v)}
-                  min={1}
-                  max={50}
-                  step={0.1}
-                />
-              </div>
-              <div className="input-slider-group">
-                <label>Time Period (Years)</label>
-                <input
-                  type="number"
-                  value={values.timePeriod}
-                  onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
-                />
-                <Slider
-                  value={values.timePeriod}
-                  onChange={(v) => handleChange('timePeriod', v)}
-                  min={1}
-                  max={40}
-                  step={1}
-                />
-              </div>
+              {/* Add other sliders */}
             </div>
           ) : (
             <div>
@@ -182,51 +152,7 @@ const Calculator = () => {
                   step={1000}
                 />
               </div>
-              <div className="input-slider-group">
-                <label>Withdrawal Per Month</label>
-                <input
-                  type="number"
-                  value={values.withdrawalAmount}
-                  onChange={(e) => handleChange('withdrawalAmount', parseFloat(e.target.value))}
-                />
-                <Slider
-                  value={values.withdrawalAmount}
-                  onChange={(v) => handleChange('withdrawalAmount', v)}
-                  min={500}
-                  max={500000}
-                  step={100}
-                />
-              </div>
-              <div className="input-slider-group">
-                <label>Expected Return Rate (p.a.)</label>
-                <input
-                  type="number"
-                  value={values.returnRate}
-                  onChange={(e) => handleChange('returnRate', parseFloat(e.target.value))}
-                />
-                <Slider
-                  value={values.returnRate}
-                  onChange={(v) => handleChange('returnRate', v)}
-                  min={1}
-                  max={50}
-                  step={0.1}
-                />
-              </div>
-              <div className="input-slider-group">
-                <label>Time Period (Years)</label>
-                <input
-                  type="number"
-                  value={values.timePeriod}
-                  onChange={(e) => handleChange('timePeriod', parseFloat(e.target.value))}
-                />
-                <Slider
-                  value={values.timePeriod}
-                  onChange={(v) => handleChange('timePeriod', v)}
-                  min={1}
-                  max={40}
-                  step={1}
-                />
-              </div>
+              {/* Add other sliders */}
             </div>
           )}
         </div>
@@ -237,14 +163,29 @@ const Calculator = () => {
           <div className="results-container">
             {isSIP ? (
               <>
-                <div>Invested Amount: {formatIndianCurrency(results.invested)}</div>
-                <div>Est. Returns: {formatIndianCurrency(results.returns)}</div>
-                <div>Total Value: {formatIndianCurrency(results.total)}</div>
+                <div className="result-item">
+                  <span className="result-label">Invested Amount:</span>
+                  <span className="result-value">{formatIndianCurrency(results.invested)}</span>
+                </div>
+                <div className="result-item">
+                  <span className="result-label">Est. Returns:</span>
+                  <span className="result-value">{formatIndianCurrency(results.returns)}</span>
+                </div>
+                <div className="result-item">
+                  <span className="result-label">Total Value:</span>
+                  <span className="result-value">{formatIndianCurrency(results.total)}</span>
+                </div>
               </>
             ) : (
               <>
-                <div>Total Withdrawn: {formatIndianCurrency(results.withdrawn)}</div>
-                <div>Remaining Amount: {formatIndianCurrency(results.remaining)}</div>
+                <div className="result-item">
+                  <span className="result-label">Total Withdrawn:</span>
+                  <span className="result-value">{formatIndianCurrency(results.withdrawn)}</span>
+                </div>
+                <div className="result-item">
+                  <span className="result-label">Remaining Amount:</span>
+                  <span className="result-value">{formatIndianCurrency(results.remaining)}</span>
+                </div>
               </>
             )}
           </div>

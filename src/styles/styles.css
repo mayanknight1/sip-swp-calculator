@@ -16,25 +16,29 @@ body {
   color: #1e293b;
 }
 
+/* Outer container for the entire layout */
 .outer-container {
   padding: 2rem;
-  font-family: 'Inter', sans-serif; /* Ensure Inter is applied here */
+  font-family: 'Inter', sans-serif;
 }
 
+/* Main heading styling */
 .main-heading {
-  font-family: 'Inter', sans-serif; /* Ensure Inter is applied here */
   text-align: center;
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 2rem;
 }
 
+/* Inner container for side-by-side layout */
 .inner-container {
   display: flex;
   gap: 2rem;
   justify-content: space-between;
+  align-items: flex-start; /* Align items to the top */
 }
 
+/* Left container for the calculator */
 .calculator-container {
   flex: 1;
   background: #fff;
@@ -43,6 +47,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Calculator card styling */
 .calculator-card {
   background: white;
   box-shadow: var(--card-shadow);
@@ -52,6 +57,7 @@ body {
   width: 100%;
 }
 
+/* Calculator header styling */
 .calculator-header {
   display: flex;
   align-items: center;
@@ -59,6 +65,7 @@ body {
   margin-bottom: 2.5rem;
 }
 
+/* Toggle container styling */
 .toggle-container {
   display: flex;
   background: #f0f4ff;
@@ -66,6 +73,7 @@ body {
   border-radius: 12px;
 }
 
+/* Toggle button styling */
 .toggle-button {
   padding: 0.5rem 1.5rem;
   border-radius: 10px;
@@ -81,10 +89,12 @@ body {
   color: var(--primary-color);
 }
 
+/* Slider container styling */
 .slider-container {
   margin-bottom: 2rem;
 }
 
+/* Slider label styling */
 .slider-label {
   display: flex;
   justify-content: space-between;
@@ -97,6 +107,7 @@ body {
   font-weight: 500;
 }
 
+/* Custom slider styling */
 .custom-slider {
   -webkit-appearance: none;
   appearance: none;
@@ -118,6 +129,7 @@ body {
   box-shadow: 0 0 0 1px var(--primary-color);
 }
 
+/* Results container below the chart */
 .results-container {
   margin-top: 1rem;
   text-align: center;
@@ -139,6 +151,7 @@ body {
   color: #1e293b;
 }
 
+/* Right container for the chart */
 .chart-container {
   flex: 1;
   background: #fff;
@@ -148,14 +161,34 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
+/* Constrain the chart size */
+.chart-container canvas {
+  max-width: 300px;
+  max-height: 300px;
+  width: 100%;
+  height: auto;
+}
+
+/* Responsive design for smaller screens */
 @media (max-width: 768px) {
+  .inner-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
   .calculator-card {
     padding: 1.5rem;
   }
   
   .toggle-button {
     padding: 0.5rem 1rem;
+  }
+
+  .chart-container canvas {
+    max-width: 100%;
+    max-height: 250px;
   }
 }

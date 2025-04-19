@@ -6,7 +6,7 @@ const ToggleSlider = () => {
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
-    <div className="theme-toggle-wrapper">
+    <div className={`theme-toggle-wrapper ${isDarkMode ? 'dark-mode' : ''}`}>
       <span className="theme-label">Light</span>
       <label className="toggle-switch">
         <input 
@@ -14,7 +14,7 @@ const ToggleSlider = () => {
           checked={isDarkMode} 
           onChange={toggleTheme}
         />
-        <span className="slider round"></span>
+        <span className="slider"></span>
       </label>
       <span className="theme-label">Dark</span>
     </div>

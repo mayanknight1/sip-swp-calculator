@@ -57,6 +57,12 @@ body.dark-mode {
   width: 100%;
 }
 
+@media (max-width: 768px) {
+  .outer-container {
+    padding-top: calc(var(--container-padding) + 48px);
+  }
+}
+
 /* Main heading styling */
 .main-heading {
   text-align: center;

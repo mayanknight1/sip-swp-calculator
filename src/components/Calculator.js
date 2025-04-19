@@ -35,6 +35,8 @@ const Calculator = () => {
 
   const { isDarkMode } = useTheme();
 
+  const isMobile = window.innerWidth <= 768;
+
   const handleChange = (key, value) => {
     setValues((prevValues) => ({
       ...prevValues,
@@ -135,7 +137,7 @@ const Calculator = () => {
 
   return (
     <div className="outer-container">
-      <ToggleSlider />  {/* Make sure it's here */}
+      {!isMobile && <ToggleSlider />} {/* Conditionally render ToggleSlider */}
       <h1 className="main-heading">Sip 'n Swip</h1>
       <div className="inner-container">
         {/* Left Side: Calculator */}
